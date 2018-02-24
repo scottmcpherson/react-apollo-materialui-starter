@@ -5,10 +5,7 @@ import SideBarLinks from '../../components/SideBarLinks'
 import { Route } from 'react-router-dom'
 import { withStyles } from 'material-ui/styles'
 import Drawer from 'material-ui/Drawer'
-import AppBar from 'material-ui/AppBar'
-import Typography from 'material-ui/Typography'
 import Hidden from 'material-ui/Hidden'
-import Paper from 'material-ui/Paper'
 
 const drawerWidth = 160
 const betSlipDrawerWidth = 240

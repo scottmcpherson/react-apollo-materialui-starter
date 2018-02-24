@@ -19,7 +19,6 @@ const sports = {
     return this.sports
   },
   getMatches(sportName) {
-    console.log('sportName:::: ', sportName)
     return this.matches.filter(match => match.sport === sportName)
   },
   getSport(sportName) {
@@ -27,32 +26,30 @@ const sports = {
   }
 }
 
-const TEMP_USER = {
-  id: '1',
-  email: 'scott@test.com'
-}
-
 const resolvers = {
   Query: {
-    user() {
-      return user.find()
+    currentUser: async (root, {}, { user }) => {
+      if (!user) {
+        throw new Error('Invalid token')
+      }
+      const loginInUser = await User.findOne({ where: { id: user.id } })
+      return loginInUser
     },
     sportMatches(root, { sportName }) {
       return sports.getMatches(sportName)
     },
     sports(root, { limit }, context) {
-      console.log('context:: ', context)
       return sports.findAll().slice(0, limit)
     }
   },
   Mutation: {
-    login: async (root, { email, password }, { mongo }) => {
+    login: async (root, { email, password }) => {
       const user = await User.findOne({ where: { email } })
       if (!user) {
         throw new Error('Email not found')
       }
 
-      const validPassword = await bcrypt.compare('password', user.password)
+      const validPassword = await bcrypt.compare(password, user.password)
 
       if (!validPassword) {
         throw new Error('Password is incorrect')
@@ -62,7 +59,7 @@ const resolvers = {
 
       return user
     },
-    signup: async (root, { email, password }, { mongo }) => {
+    signup: async (root, { email, password }) => {
       const existingUser = await User.findOne({ where: { email } })
 
       if (existingUser) {
@@ -70,12 +67,32 @@ const resolvers = {
       }
       const hash = await bcrypt.hash(password, 10)
 
-      const newUser = await User.create({
+      const user = await User.create({
         email,
         password: hash
       })
 
-      return newUser
+      user.jwt = jwt.sign({ id: user.id }, 'SECRET')
+
+      return user
+    },
+    forgotPassword: async (root, { email }, { user }) => {
+      if (!user) {
+        throw new Error('Invalid token')
+      }
+
+      console.log(`Forgot password email here for ${email}`)
+
+      return { message: 'Success' }
+    },
+    resetPassword: async (root, { password, token }, { user }) => {
+      if (!user) {
+        throw new Error('Invalid token')
+      }
+
+      console.log(`Reset password here`)
+
+      return { message: 'Success' }
     }
   },
   Sport: {

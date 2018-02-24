@@ -4,7 +4,7 @@ import mocks from './mocks'
 
 const typeDefs = `
 type Query {
-  user: User
+  currentUser: User
   sports(limit: Int): [Sport]
   sportMatches(sportName: String): [Match]
 }
@@ -31,9 +31,15 @@ type Match {
   sport: Sport
 }
 
+type Message {
+  message: String 
+}
+
 type Mutation {
   login(email: String!, password: String!): User
   signup(email: String!, password: String!): User
+  forgotPassword(email: String!): Message
+  resetPassword(password: String!, token: String!): Message
 }
 `
 

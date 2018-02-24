@@ -1,8 +1,6 @@
 import React from 'react'
-import { BrowserRouter as Router, Route } from 'react-router-dom'
+import { Router } from 'react-router-dom'
 import { MuiThemeProvider } from 'material-ui/styles'
-import MainLayout from './layouts/MainLayout'
-import LoginLayout from './layouts/LoginLayout'
 import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
 import { ApolloProvider } from 'react-apollo'
@@ -14,14 +12,17 @@ import thunk from 'redux-thunk'
 import routes from './routes'
 import theme from './theme'
 import reducers from './redux'
-import { fetchUser } from './redux/actions/user'
+import history from './history'
+// import { fetchUser } from './redux/actions/user'
 import ScrollToTop from './components/ScrollToTop'
+import AuthWrapper from './components/AuthWrapper'
 // import './App.css'
 // import MainLayout from './layouts/MainLayout'
 // import LoginLayout from './layouts/LoginLayout'
+const GRAPHQL_URI = 'http://localhost:3001/graphql'
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:3001/graphql'
+  uri: GRAPHQL_URI
 })
 
 const authLink = setContext((_, { headers }) => {
@@ -45,29 +46,15 @@ const client = new ApolloClient({
 })
 
 const store = createStore(reducers, applyMiddleware(thunk))
-const Fragment = React.Fragment
-const Routes = () => {
-  const logout = (nextState, replace, cb) => {
-    if (client) {
-      client.resetStore()
-    }
-    replace('/')
-    cb()
-  }
 
-  if (store) {
-    let token = localStorage.getItem('token')
-    if (token !== null) {
-      store.dispatch(fetchUser())
-    }
-  }
+const Routes = props => {
   return (
-    <Router>
+    <Router history={history}>
       <ScrollToTop>
         <Provider store={store}>
           <MuiThemeProvider theme={theme}>
             <ApolloProvider client={client}>
-              <Fragment>
+              <AuthWrapper history={history} client={client}>
                 {routes.map((route, index) => {
                   const { layout: Layout } = route
                   return (
@@ -80,7 +67,7 @@ const Routes = () => {
                     />
                   )
                 })}
-              </Fragment>
+              </AuthWrapper>
             </ApolloProvider>
           </MuiThemeProvider>
         </Provider>

@@ -10,7 +10,6 @@ import IconButton from 'material-ui/IconButton'
 import AccountCircle from 'material-ui-icons/AccountCircle'
 import MenuIcon from 'material-ui-icons/Menu'
 import Menu, { MenuItem } from 'material-ui/Menu'
-import { signOutUser } from '../../redux/actions/auth'
 import { connect } from 'react-redux'
 
 const Fragment = React.Fragment
@@ -45,14 +44,12 @@ class ProfileDropdown extends React.Component {
 
   handleLogout = () => {
     this.handleClose()
-    const { client, dispatch } = this.props
+    const { client } = this.props
     client.resetStore()
-    dispatch(signOutUser())
   }
 
   render() {
-    const { classes } = this.props
-    const { auth, anchorEl } = this.state
+    const { anchorEl } = this.state
     const open = Boolean(anchorEl)
     return (
       <div>
@@ -110,7 +107,7 @@ const barStyles = theme => ({
 
 class ButtonAppBar extends React.Component {
   render() {
-    const { classes, theme, currentUser, client } = this.props
+    const { classes, currentUser, client } = this.props
 
     return (
       <AppBar className={classes.appBar} position="fixed">
@@ -135,9 +132,9 @@ class ButtonAppBar extends React.Component {
   }
 }
 
-const connector = connect(state => ({
-  currentUser: state.user.currentUser
-}))(withStyles(barStyles, { withTheme: true })(ButtonAppBar))
+const connector = connect(state => ({}))(
+  withStyles(barStyles, { withTheme: true })(ButtonAppBar)
+)
 
 ButtonAppBar.propTypes = {
   classes: PropTypes.object.isRequired
