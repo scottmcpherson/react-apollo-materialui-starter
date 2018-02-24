@@ -13,6 +13,9 @@ type User {
   id: Int
   firstName: String
   lastName: String
+  email: String
+  password: String
+  jwt: String
 }
 
 type Sport {
@@ -26,6 +29,11 @@ type Match {
   homeTeam: String
   awayTeam: String
   sport: Sport
+}
+
+type Mutation {
+  login(email: String!, password: String!): User
+  signup(email: String!, password: String!): User
 }
 `
 

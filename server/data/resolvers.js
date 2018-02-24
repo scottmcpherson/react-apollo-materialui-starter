@@ -1,15 +1,8 @@
 const fetch = require('node-fetch')
-
-const user = {
-  user: {
-    id: 1,
-    firstName: 'John',
-    lastName: 'Doe'
-  },
-  find() {
-    return this.user
-  }
-}
+const db = require('../models')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const User = db.User
 
 const sports = {
   sports: [
@@ -34,29 +27,64 @@ const sports = {
   }
 }
 
+const TEMP_USER = {
+  id: '1',
+  email: 'scott@test.com'
+}
+
 const resolvers = {
   Query: {
     user() {
       return user.find()
     },
     sportMatches(root, { sportName }) {
-      console.log('sportName:: ', sportName)
-
       return sports.getMatches(sportName)
     },
-    sports(root, { limit }) {
+    sports(root, { limit }, context) {
+      console.log('context:: ', context)
       return sports.findAll().slice(0, limit)
+    }
+  },
+  Mutation: {
+    login: async (root, { email, password }, { mongo }) => {
+      const user = await User.findOne({ where: { email } })
+      if (!user) {
+        throw new Error('Email not found')
+      }
+
+      const validPassword = await bcrypt.compare('password', user.password)
+
+      if (!validPassword) {
+        throw new Error('Password is incorrect')
+      }
+
+      user.jwt = jwt.sign({ id: user.id }, 'SECRET')
+
+      return user
+    },
+    signup: async (root, { email, password }, { mongo }) => {
+      const existingUser = await User.findOne({ where: { email } })
+
+      if (existingUser) {
+        throw new Error('Email already used')
+      }
+      const hash = await bcrypt.hash(password, 10)
+
+      const newUser = await User.create({
+        email,
+        password: hash
+      })
+
+      return newUser
     }
   },
   Sport: {
     matches(sport) {
-      console.log('sport!!', sport)
       return sports.getMatches(sport.name)
     }
   },
   Match: {
     sport(match) {
-      console.log('match:: ', match)
       const { sport } = match
       return sports.getSport(sport.sport)
     }

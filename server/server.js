@@ -5,6 +5,7 @@ import schema from './data/schema'
 import models from './models'
 import { setupLocalLogin } from './localLogin'
 import cors from 'cors'
+import jwt from 'express-jwt'
 
 require('dotenv').config()
 
@@ -14,11 +15,24 @@ const app = express()
 
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json())
+// app.use(bodyParser.json())
 
-setupLocalLogin(app)
+// setupLocalLogin(app)
 
-app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }))
+app.use(
+  '/graphql',
+  bodyParser.json(),
+  jwt({
+    secret: 'SECRET',
+    credentialsRequired: false
+  }),
+  graphqlExpress(async req => ({
+    schema,
+    context: {
+      user: req.user
+    }
+  }))
+)
 app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
 
 app.listen(GRAPHQL_PORT, () => {
