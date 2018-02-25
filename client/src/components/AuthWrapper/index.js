@@ -4,7 +4,7 @@ import { graphql, compose } from 'react-apollo'
 
 class AuthWrapper extends React.Component {
   state = {
-    user: null
+    currentUser: null
   }
 
   componentWillReceiveProps({ data: { currentUser } }) {
@@ -80,12 +80,12 @@ class AuthWrapper extends React.Component {
 
   renderChildren() {
     const { children } = this.props
-    const { user } = this.state
+    const { currentUser } = this.state
     const { onLogin, onSignUp, onLogout, onForgotPassword } = this
 
     return React.Children.map(children, child =>
       React.cloneElement(child, {
-        user,
+        currentUser,
         onLogin,
         onSignUp,
         onLogout,

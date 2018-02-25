@@ -13,12 +13,9 @@ import routes from './routes'
 import theme from './theme'
 import reducers from './redux'
 import history from './history'
-// import { fetchUser } from './redux/actions/user'
 import ScrollToTop from './components/ScrollToTop'
 import AuthWrapper from './components/AuthWrapper'
-// import './App.css'
-// import MainLayout from './layouts/MainLayout'
-// import LoginLayout from './layouts/LoginLayout'
+
 const GRAPHQL_URI = 'http://localhost:3001/graphql'
 
 const httpLink = createHttpLink({
